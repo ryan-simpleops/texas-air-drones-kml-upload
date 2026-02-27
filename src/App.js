@@ -12,8 +12,30 @@ function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const magicToken = urlParams.get('data') || '';
 
-  // Show 404 if no magic token provided
-  if (!magicToken) {
+  // Validate magic token
+  const validateMagicToken = (token) => {
+    if (!token) return false;
+
+    try {
+      // Decode base64
+      const decoded = atob(token);
+
+      // Check format: org_id:deal_id
+      const parts = decoded.split(':');
+      if (parts.length !== 2) return false;
+
+      // Check both are numbers
+      const orgId = parseInt(parts[0], 10);
+      const dealId = parseInt(parts[1], 10);
+
+      return !isNaN(orgId) && !isNaN(dealId) && orgId > 0 && dealId > 0;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Show 404 if no magic token or invalid format
+  if (!magicToken || !validateMagicToken(magicToken)) {
     return (
       <div className="app">
         <div className="container">
