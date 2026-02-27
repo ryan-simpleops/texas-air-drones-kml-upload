@@ -43,7 +43,8 @@ function App() {
 
     const fetchPersonData = async () => {
       try {
-        const response = await fetch(`https://texairdrone.app.n8n.cloud/webhook/37384324-7dc3-4c42-a7ce-09d6871a5dd4?data=${magicToken}`);
+        const personWebhookUrl = process.env.REACT_APP_PERSON_WEBHOOK_URL;
+        const response = await fetch(`${personWebhookUrl}?data=${magicToken}`);
         if (response.ok) {
           const data = await response.json();
           setPersonData(data);
