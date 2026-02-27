@@ -130,6 +130,10 @@
   background: #e8f5e9;
   border-radius: 8px;
   border-left: 4px solid #4caf50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
 }
 
 .file-info p {
@@ -137,6 +141,29 @@
   font-size: 1.1em;
   color: #2e7d32;
   font-weight: 400;
+  margin: 0;
+  flex: 1;
+}
+
+.remove-btn {
+  font-family: 'Kanit', sans-serif;
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  font-size: 0.9em;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.remove-btn:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
 }
 
 .submit-btn {

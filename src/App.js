@@ -214,6 +214,13 @@ function App() {
             {selectedFile && (
               <div className="file-info">
                 <p><strong>Selected file:</strong> {selectedFile.name}</p>
+                <button
+                  onClick={() => setSelectedFile(null)}
+                  className="remove-btn"
+                  type="button"
+                >
+                  Remove
+                </button>
               </div>
             )}
 
