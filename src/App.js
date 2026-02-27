@@ -35,8 +35,29 @@ function App() {
     }
   };
 
+  const isValidToken = magicToken && validateMagicToken(magicToken);
+
+  // Fetch person data on mount (only if token is valid)
+  useEffect(() => {
+    if (!isValidToken) return;
+
+    const fetchPersonData = async () => {
+      try {
+        const response = await fetch(`https://texairdrone.app.n8n.cloud/webhook/37384324-7dc3-4c42-a7ce-09d6871a5dd4?data=${magicToken}`);
+        if (response.ok) {
+          const data = await response.json();
+          setPersonData(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch person data:', err);
+      }
+    };
+
+    fetchPersonData();
+  }, [magicToken, isValidToken]);
+
   // Show 404 if no magic token or invalid format
-  if (!magicToken || !validateMagicToken(magicToken)) {
+  if (!isValidToken) {
     return (
       <div className="app">
         <div className="container">
@@ -51,23 +72,6 @@ function App() {
       </div>
     );
   }
-
-  // Fetch person data on mount
-  useEffect(() => {
-    const fetchPersonData = async () => {
-      try {
-        const response = await fetch(`https://texairdrone.app.n8n.cloud/webhook/37384324-7dc3-4c42-a7ce-09d6871a5dd4?data=${magicToken}`);
-        if (response.ok) {
-          const data = await response.json();
-          setPersonData(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch person data:', err);
-      }
-    };
-
-    fetchPersonData();
-  }, [magicToken]);
 
   const handleFile = (file) => {
     if (!file) return;
