@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -7,6 +7,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [personData, setPersonData] = useState(null);
 
   // Get magic_token from URL query parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -50,6 +51,23 @@ function App() {
       </div>
     );
   }
+
+  // Fetch person data on mount
+  useEffect(() => {
+    const fetchPersonData = async () => {
+      try {
+        const response = await fetch(`https://texairdrone.app.n8n.cloud/webhook/37384324-7dc3-4c42-a7ce-09d6871a5dd4?data=${magicToken}`);
+        if (response.ok) {
+          const data = await response.json();
+          setPersonData(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch person data:', err);
+      }
+    };
+
+    fetchPersonData();
+  }, [magicToken]);
 
   const handleFile = (file) => {
     if (!file) return;
@@ -128,7 +146,11 @@ function App() {
       <div className="container">
         <div className="header">
           <h1>📍 Upload Your KML File</h1>
-          <p>Texas Air Drone - Property Mapping</p>
+          {personData ? (
+            <p>Hello {personData.first_name}, looking forward to working with {personData.company}!</p>
+          ) : (
+            <p>Texas Air Drone - Property Mapping</p>
+          )}
         </div>
 
         <div className="content">
