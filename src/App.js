@@ -1,0 +1,171 @@
+import React, { useState } from 'react';
+import './App.css';
+
+function App() {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  // Get magic_token from URL query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const magicToken = urlParams.get('data') || '';
+
+  const handleFile = (file) => {
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['.kml', '.kmz'];
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+
+    if (!validTypes.includes(fileExtension)) {
+      setError('Please upload a valid KML or KMZ file.');
+      return;
+    }
+
+    setSelectedFile(file);
+    setSuccess(false);
+    setError('');
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    handleFile(e.dataTransfer.files[0]);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
+  const handleFileInput = (e) => {
+    handleFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('filename', selectedFile.name);
+    formData.append('mime_type', selectedFile.type || 'application/vnd.google-earth.kml+xml');
+    formData.append('magic_token', magicToken);
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const webhookUrl = process.env.REACT_APP_WEBHOOK_URL;
+      if (!webhookUrl) {
+        throw new Error('Webhook URL not configured');
+      }
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        body: formData
+      });
+
+      setLoading(false);
+
+      if (response.ok) {
+        setSuccess(true);
+        setSelectedFile(null);
+      } else {
+        setError('Upload failed. Please try again or contact support.');
+      }
+    } catch (err) {
+      setLoading(false);
+      setError('Network error. Please check your connection and try again.');
+    }
+  };
+
+  return (
+    <div className="app">
+      <div className="container">
+        <div className="header">
+          <h1>📍 Upload Your KML File</h1>
+          <p>Texas Air Drone - Property Mapping</p>
+        </div>
+
+        <div className="content">
+          <div className="section">
+            <h2>📹 How to Create a KML File</h2>
+            <div className="video-container">
+              <iframe
+                src="https://drive.google.com/file/d/12rzo7IF56KNoLYiGYymyc8-USQ2vpaq7/preview"
+                allow="autoplay"
+                title="KML Tutorial"
+              ></iframe>
+            </div>
+          </div>
+
+          <div className="section">
+            <h2>📤 Upload Your KML File</h2>
+            <div
+              className={`upload-area ${dragOver ? 'dragover' : ''}`}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onClick={() => document.getElementById('fileInput').click()}
+            >
+              <div className="upload-icon">☁️</div>
+              <p><strong>Click to browse</strong> or drag and drop your file here</p>
+              <p className="file-types">Accepts .kml and .kmz files</p>
+            </div>
+            <input
+              type="file"
+              id="fileInput"
+              accept=".kml,.kmz"
+              onChange={handleFileInput}
+              style={{ display: 'none' }}
+            />
+
+            {selectedFile && (
+              <div className="file-info">
+                <p><strong>Selected file:</strong> {selectedFile.name}</p>
+              </div>
+            )}
+
+            {selectedFile && !success && (
+              <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                <button
+                  className="submit-btn"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                >
+                  Upload to Texas Air Drone
+                </button>
+              </div>
+            )}
+
+            {loading && (
+              <div className="loading">
+                <div className="spinner"></div>
+                <p>Uploading your file...</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="success-message">
+                <strong>✅ Success!</strong> Your KML file has been uploaded successfully. We'll review your property and get back to you shortly.
+              </div>
+            )}
+
+            {error && (
+              <div className="error-message">
+                <strong>❌ Error:</strong> {error}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
