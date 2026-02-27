@@ -44,10 +44,18 @@ function App() {
     const fetchPersonData = async () => {
       try {
         const personWebhookUrl = process.env.REACT_APP_PERSON_WEBHOOK_URL;
+        console.log('Person Webhook URL:', personWebhookUrl);
+        console.log('Fetching person data with token:', magicToken);
+
         const response = await fetch(`${personWebhookUrl}?data=${magicToken}`);
+        console.log('Person data response status:', response.status);
+
         if (response.ok) {
           const data = await response.json();
+          console.log('Person data received:', data);
           setPersonData(data);
+        } else {
+          console.error('Person data fetch failed with status:', response.status);
         }
       } catch (err) {
         console.error('Failed to fetch person data:', err);
@@ -124,23 +132,36 @@ function App() {
 
     try {
       const webhookUrl = process.env.REACT_APP_WEBHOOK_URL;
+      console.log('Webhook URL:', webhookUrl);
+
       if (!webhookUrl) {
+        console.error('Webhook URL not configured');
         throw new Error('Webhook URL not configured');
       }
+
+      console.log('Uploading file:', selectedFile.name);
+      console.log('Magic token:', magicToken);
+
       const response = await fetch(webhookUrl, {
         method: 'POST',
         body: formData
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       setLoading(false);
 
       if (response.ok) {
+        console.log('Upload successful');
         setSuccess(true);
         setSelectedFile(null);
       } else {
+        console.error('Upload failed with status:', response.status);
         setError('Upload failed. Please try again or contact support.');
       }
     } catch (err) {
+      console.error('Upload error:', err);
       setLoading(false);
       setError('Network error. Please check your connection and try again.');
     }
