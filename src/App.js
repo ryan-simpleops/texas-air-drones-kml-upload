@@ -12,6 +12,23 @@ function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const magicToken = urlParams.get('data') || '';
 
+  // Show 404 if no magic token provided
+  if (!magicToken) {
+    return (
+      <div className="app">
+        <div className="container">
+          <div className="header">
+            <h1>404</h1>
+            <p>Page not found</p>
+          </div>
+          <div className="content" style={{ textAlign: 'center' }}>
+            <p>This page requires a valid access link.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const handleFile = (file) => {
     if (!file) return;
 
@@ -96,11 +113,10 @@ function App() {
           <div className="section">
             <h2>📹 How to Create a KML File</h2>
             <div className="video-container">
-              <iframe
-                src="https://drive.google.com/file/d/12rzo7IF56KNoLYiGYymyc8-USQ2vpaq7/preview"
-                allow="autoplay"
-                title="KML Tutorial"
-              ></iframe>
+              <video controls width="100%">
+                <source src="/KML_Tutorial.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
 
