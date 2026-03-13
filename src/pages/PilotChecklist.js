@@ -100,17 +100,15 @@ function PilotChecklist() {
 
     const fetchProjectData = async () => {
       try {
-        const projectWebhookUrl = process.env.REACT_APP_PROJECT_WEBHOOK_URL;
-
-        if (!projectWebhookUrl) return;
+        const projectWebhookUrl = process.env.REACT_APP_PROJECT_WEBHOOK_URL || 'https://texairdrone.app.n8n.cloud/webhook/83270d03-929b-4a8a-96ce-5633da50f182';
 
         const response = await fetch(`${projectWebhookUrl}?data=${magicToken}`);
 
         if (response.ok) {
           const data = await response.json();
           console.log('Project data received:', data);
-          if (data.project_name) {
-            setProjectName(data.project_name);
+          if (data.project) {
+            setProjectName(data.project);
           }
         }
       } catch (err) {
