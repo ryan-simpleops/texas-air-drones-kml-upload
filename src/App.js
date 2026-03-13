@@ -8,7 +8,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<KMLUpload />} />
-        <Route path="/pilot/checklist" element={<PilotChecklist />} />
+        <Route path="/checklist" element={<PilotChecklist />} />
       </Routes>
     </BrowserRouter>
   );
