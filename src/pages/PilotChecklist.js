@@ -79,12 +79,14 @@ function PilotChecklist() {
     try {
       const decoded = atob(token);
       const parts = decoded.split(':');
-      if (parts.length !== 2) return false;
+      if (parts.length !== 3) return false;
 
-      const orgId = parseInt(parts[0], 10);
+      const contactId = parseInt(parts[0], 10);
       const dealId = parseInt(parts[1], 10);
+      const pilotId = parseInt(parts[2], 10);
 
-      return !isNaN(orgId) && !isNaN(dealId) && orgId > 0 && dealId > 0;
+      return !isNaN(contactId) && !isNaN(dealId) && !isNaN(pilotId) &&
+             contactId > 0 && dealId > 0 && pilotId > 0;
     } catch (e) {
       return false;
     }
