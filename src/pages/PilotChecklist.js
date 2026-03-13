@@ -212,15 +212,9 @@ function PilotChecklist() {
 
       const formData = new FormData();
       formData.append('file', pdfBlob, `equipment-checklist-${Date.now()}.pdf`);
-      formData.append('magic_token', magicToken);
-      formData.append('project_name', projectName);
-      formData.append('checklist_data', JSON.stringify(checklist));
+      formData.append('data', magicToken);
 
-      const webhookUrl = process.env.REACT_APP_CHECKLIST_WEBHOOK_URL;
-
-      if (!webhookUrl) {
-        throw new Error('Webhook URL not configured');
-      }
+      const webhookUrl = process.env.REACT_APP_CHECKLIST_WEBHOOK_URL || 'https://texairdrone.app.n8n.cloud/webhook/2753c6c8-d766-4f86-9534-c65edbdf7db2';
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
