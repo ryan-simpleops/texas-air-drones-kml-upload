@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import './PilotChecklist.css';
@@ -64,10 +64,14 @@ function PilotChecklist() {
   const [checklist, setChecklist] = useState({});
   const [projectName, setProjectName] = useState('');
   const [pilotName, setPilotName] = useState('');
+  const [signature, setSignature] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [draftRestored, setDraftRestored] = useState(false);
+
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   // Get magic_token from URL query parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -137,6 +141,19 @@ function PilotChecklist() {
       if (!projectName && saved.projectName) {
         setProjectName(saved.projectName);
       }
+      if (saved.signature) {
+        setSignature(saved.signature);
+        // Restore signature on canvas
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          const img = new Image();
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+          };
+          img.src = saved.signature;
+        }
+      }
       setDraftRestored(true);
       setTimeout(() => setDraftRestored(false), 5000);
     }
@@ -144,10 +161,10 @@ function PilotChecklist() {
 
   // Auto-save to localStorage on change
   useEffect(() => {
-    if (isValidToken && (Object.keys(checklist).length > 0 || projectName)) {
-      saveToLocalStorage(magicToken, { checklist, projectName });
+    if (isValidToken && (Object.keys(checklist).length > 0 || projectName || signature)) {
+      saveToLocalStorage(magicToken, { checklist, projectName, signature });
     }
-  }, [checklist, projectName, magicToken, isValidToken]);
+  }, [checklist, projectName, signature, magicToken, isValidToken]);
 
   // Handle checkbox change - multiple columns can be checked per item
   const handleCheck = (item, column) => {
@@ -158,6 +175,49 @@ function PilotChecklist() {
         [column]: !(prev[item]?.[column] || false) // Toggle the specific checkbox
       }
     }));
+  };
+
+  // Signature drawing handlers
+  const startDrawing = (e) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setIsDrawing(true);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    if (isDrawing) {
+      const canvas = canvasRef.current;
+      setSignature(canvas.toDataURL());
+      setIsDrawing(false);
+    }
+  };
+
+  const clearSignature = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setSignature('');
   };
 
   // Generate PDF
@@ -202,6 +262,14 @@ function PilotChecklist() {
       }
     });
 
+    // Add signature if available
+    const finalY = doc.lastAutoTable.finalY || 79;
+    if (signature) {
+      doc.setFontSize(12);
+      doc.text('Pilot Signature:', 10, finalY + 15);
+      doc.addImage(signature, 'PNG', 10, finalY + 20, 60, 20);
+    }
+
     // Footer
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
@@ -239,6 +307,7 @@ function PilotChecklist() {
         clearLocalStorage(magicToken);
         setChecklist({});
         setProjectName('');
+        clearSignature();
       } else {
         setError('Submission failed. Please try again or contact support.');
       }
@@ -255,6 +324,7 @@ function PilotChecklist() {
       clearLocalStorage(magicToken);
       setChecklist({});
       setProjectName('');
+      clearSignature();
     }
   };
 
@@ -346,6 +416,40 @@ function PilotChecklist() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="section">
+            <h2>Pilot Signature</h2>
+            <canvas
+              ref={canvasRef}
+              width={500}
+              height={150}
+              onMouseDown={startDrawing}
+              onMouseMove={draw}
+              onMouseUp={stopDrawing}
+              onMouseLeave={stopDrawing}
+              style={{
+                border: '2px solid #0a4da3',
+                borderRadius: '8px',
+                cursor: 'crosshair',
+                backgroundColor: '#fff'
+              }}
+            />
+            <button
+              type="button"
+              onClick={clearSignature}
+              style={{
+                marginTop: '10px',
+                padding: '8px 16px',
+                background: '#dc3545',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Clear Signature
+            </button>
           </div>
 
           {!success && (
