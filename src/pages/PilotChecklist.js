@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import './PilotChecklist.css';
 
 // Equipment list from spreadsheet
@@ -105,10 +105,13 @@ function PilotChecklist() {
         const response = await fetch(`${projectWebhookUrl}?data=${magicToken}`);
 
         if (response.ok) {
-          const data = await response.json();
-          console.log('Project data received:', data);
-          if (data.project) {
-            setProjectName(data.project);
+          const text = await response.text();
+          if (text) {
+            const data = JSON.parse(text);
+            console.log('Project data received:', data);
+            if (data.project) {
+              setProjectName(data.project);
+            }
           }
         }
       } catch (err) {
