@@ -1,10 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/kml",
-      "destination": "/index.html"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
