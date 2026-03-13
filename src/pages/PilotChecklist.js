@@ -63,6 +63,7 @@ const clearLocalStorage = (magicToken) => {
 function PilotChecklist() {
   const [checklist, setChecklist] = useState({});
   const [projectName, setProjectName] = useState('');
+  const [pilotName, setPilotName] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -111,6 +112,9 @@ function PilotChecklist() {
             console.log('Project data received:', data);
             if (data.project) {
               setProjectName(data.project);
+            }
+            if (data.pilot) {
+              setPilotName(data.pilot);
             }
           }
         }
@@ -172,8 +176,9 @@ function PilotChecklist() {
     // Project info
     doc.setFontSize(12);
     doc.text(`Project Name: ${projectName || 'N/A'}`, 10, 50);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 10, 57);
-    doc.text(`Time: ${new Date().toLocaleTimeString()}`, 10, 64);
+    doc.text(`Assigned Pilot: ${pilotName || 'N/A'}`, 10, 57);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 10, 64);
+    doc.text(`Time: ${new Date().toLocaleTimeString()}`, 10, 71);
 
     // Checklist table
     const tableData = EQUIPMENT_ITEMS.map(item => [
@@ -186,7 +191,7 @@ function PilotChecklist() {
     doc.autoTable({
       head: [['Equipment', 'Pre', 'Post', 'N/A']],
       body: tableData,
-      startY: 72,
+      startY: 79,
       styles: { fontSize: 10 },
       headStyles: { fillColor: [10, 77, 163], textColor: 255 },
       columnStyles: {
@@ -293,6 +298,14 @@ function PilotChecklist() {
               placeholder="Loading project name..."
               value={projectName}
               readOnly
+            />
+            <input
+              type="text"
+              className="project-name-input"
+              placeholder="Loading pilot assignment..."
+              value={pilotName ? `Assigned Pilot: ${pilotName}` : ''}
+              readOnly
+              style={{ marginTop: '10px' }}
             />
           </div>
 
