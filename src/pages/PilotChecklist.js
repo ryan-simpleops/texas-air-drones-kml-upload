@@ -175,22 +175,20 @@ function PilotChecklist() {
     // Checklist table
     const tableData = EQUIPMENT_ITEMS.map(item => [
       item,
-      checklist[item] === 'pre' ? '✓' : '',
-      checklist[item] === 'post' ? '✓' : '',
+      checklist[item] === 'ok' ? '✓' : '',
       checklist[item] === 'na' ? '✓' : ''
     ]);
 
     doc.autoTable({
-      head: [['Equipment', 'Pre', 'Post', 'N/A']],
+      head: [['Equipment', 'OK', 'N/A']],
       body: tableData,
       startY: 72,
       styles: { fontSize: 10 },
       headStyles: { fillColor: [10, 77, 163], textColor: 255 },
       columnStyles: {
-        0: { cellWidth: 110 },
-        1: { cellWidth: 20, halign: 'center' },
-        2: { cellWidth: 20, halign: 'center' },
-        3: { cellWidth: 20, halign: 'center' }
+        0: { cellWidth: 130 },
+        1: { cellWidth: 25, halign: 'center' },
+        2: { cellWidth: 25, halign: 'center' }
       }
     });
 
@@ -298,8 +296,7 @@ function PilotChecklist() {
             <div className="checklist-table">
               <div className="checklist-header">
                 <div className="col-equipment">Equipment</div>
-                <div className="col-check">Pre</div>
-                <div className="col-check">Post</div>
+                <div className="col-check">OK</div>
                 <div className="col-check">N/A</div>
               </div>
 
@@ -310,16 +307,8 @@ function PilotChecklist() {
                     <input
                       type="radio"
                       name={`equipment-${index}`}
-                      checked={checklist[item] === 'pre'}
-                      onChange={() => handleCheck(item, 'pre')}
-                    />
-                  </div>
-                  <div className="col-check">
-                    <input
-                      type="radio"
-                      name={`equipment-${index}`}
-                      checked={checklist[item] === 'post'}
-                      onChange={() => handleCheck(item, 'post')}
+                      checked={checklist[item] === 'ok'}
+                      onChange={() => handleCheck(item, 'ok')}
                     />
                   </div>
                   <div className="col-check">
