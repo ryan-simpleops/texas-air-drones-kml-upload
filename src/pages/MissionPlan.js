@@ -43,6 +43,7 @@ function MissionPlan() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [draftRestored, setDraftRestored] = useState(false);
+  const [apiPopulatedFields, setApiPopulatedFields] = useState([]);
 
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -91,12 +92,27 @@ function MissionPlan() {
 
             // Pre-populate customer info fields if available
             const customerData = {};
-            if (data.project) customerData.projectName = data.project;
-            if (data.address) customerData.address = data.address;
-            if (data.contact) customerData.pointOfContact = data.contact;
-            if (data.phone) customerData.phone = data.phone;
+            const populatedFields = [];
+
+            if (data.project) {
+              customerData.projectName = data.project;
+              populatedFields.push('projectName');
+            }
+            if (data.address) {
+              customerData.address = data.address;
+              populatedFields.push('address');
+            }
+            if (data.contact) {
+              customerData.pointOfContact = data.contact;
+              populatedFields.push('pointOfContact');
+            }
+            if (data.phone) {
+              customerData.phone = data.phone;
+              populatedFields.push('phone');
+            }
 
             setFormData(prev => ({ ...prev, ...customerData }));
+            setApiPopulatedFields(populatedFields);
           }
         }
       } catch (err) {
@@ -377,17 +393,26 @@ function MissionPlan() {
           {/* Customer Information Section */}
           <div className="section">
             <h2>Customer Information</h2>
-            {MISSION_PLAN_FIELDS.customerInfo.map((field) => (
-              <div key={field.name} className="form-field">
-                <label>{field.label}{field.required && ' *'}</label>
-                <input
-                  type={field.type}
-                  value={formData[field.name] || ''}
-                  onChange={(e) => handleInputChange(field.name, e.target.value)}
-                  required={field.required}
-                />
-              </div>
-            ))}
+            {MISSION_PLAN_FIELDS.customerInfo.map((field) => {
+              // Project name is always read-only
+              // Other fields are read-only only if populated from API
+              const isReadOnly = field.name === 'projectName' || apiPopulatedFields.includes(field.name);
+
+              return (
+                <div key={field.name} className="form-field">
+                  <label>{field.label}{field.required && ' *'}</label>
+                  <input
+                    type={field.type}
+                    value={formData[field.name] || ''}
+                    onChange={(e) => handleInputChange(field.name, e.target.value)}
+                    required={field.required}
+                    readOnly={isReadOnly}
+                    className={isReadOnly ? 'read-only' : ''}
+                    placeholder={isReadOnly ? '' : `Enter ${field.label.toLowerCase()}`}
+                  />
+                </div>
+              );
+            })}
           </div>
 
           {/* Controller Settings Section */}
